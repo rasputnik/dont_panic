@@ -2,12 +2,13 @@
 /*******************************************************************************
 
 Glorified calibration test of bare conductive book project.
-  sensitivity range in setup() via 
-     MPR121.setTouchThreshold(val) / MPR121.setReleaseThreshold(val);
 
-mpr121 docs : https://github.com/BareConductive/mpr121
+  sensitivity range in setup_touchpad()
 
-XXX possibly useful from skimming 
+mpr121 (touchboard) docs : https://github.com/BareConductive/mpr121
+sfe mp3 shield docs : http://mpflaga.github.io/Sparkfun-MP3-Player-Shield-Arduino-Library/class_s_f_e_m_p3_shield.html
+
+XXX possibly useful from skimming
      https://github.com/BareConductive/mpr121/blob/public/MPR121/MPR121.h
 
    setTouchThreshold(pin,val) / setReleaseThreshold(pin,val) // per-pin thresholds
@@ -21,8 +22,6 @@ XXX possibly useful from skimming
 // touch includes
 #include <MPR121.h>
 #include <Wire.h>
-#define MPR121_ADDR 0x5C
-#define MPR121_INT 4
 
 // mp3 includes
 #include <SPI.h>
@@ -30,17 +29,16 @@ XXX possibly useful from skimming
 #include <SdFatUtil.h>
 #include <SFEMP3Shield.h>
 
-// mp3 variables
+// mp3 shield
 SFEMP3Shield MP3player;
+// sd card instantiation
+SdFat sd;
 
 int lastPlayed = 0; // track which track we last played
 
 // touch behaviour definitions
 #define firstPin 0
 #define lastPin 11
-
-// sd card instantiation
-SdFat sd;
 
 // define LED_BUILTIN for older versions of Arduino
 #ifndef LED_BUILTIN
@@ -54,49 +52,57 @@ void setup() {
 
   while (!Serial) ; {} //uncomment when using the serial monitor
   Serial.println("Bare Conductive Proximity MP3 player");
-
-  if (!sd.begin(SD_SEL, SPI_HALF_SPEED)) sd.initErrorHalt();
-
-  if (!MPR121.begin(MPR121_ADDR)) Serial.println("error setting up MPR121");
-  MPR121.setInterruptPin(MPR121_INT);
-
-  // Changes from Touch MP3
-
-  // this is the touch threshold - setting it low makes it more like a proximity trigger
-  // default value is 40 for touch
-  MPR121.setTouchThreshold(20);
-
-  // this is the release threshold - must ALWAYS be smaller than the touch threshold
-  // default value is 20 for touch
-  MPR121.setReleaseThreshold(7);
-
-  setup_mp3player(10,10);
+  
+  setup_sdcard();
+  setup_touchpad(20,7); // args = touch, release thresholds
+  setup_mp3player(10); // arg = volume
 
 }
 
-void setup_mp3player(int leftvol, int rightvol) {
+// if this fails, we crash (hardware is broken, get a new board)
+void setup_sdcard() {
+  if (!sd.begin(SD_SEL, SPI_HALF_SPEED)) {
+    Serial.println("Error starting SD card");
+    sd.initErrorHalt();
+  }
+}
+
+// touch_threshold == reading to define a 'touch' (default = 40);
+// release_threshold == reading to define a 'release' (default = 20)
+// touch_threshold MUST be < release_threshold
+void setup_touchpad(unsigned char touch_threshold, unsigned char release_threshold) {
+  // correct setup for our bareconductive board
+  if (!MPR121.begin(0x5C)) Serial.println("error starting MPR121");
+  MPR121.setInterruptPin(4);
+
+  MPR121.setTouchThreshold(touch_threshold);
+  MPR121.setReleaseThreshold(release_threshold);
+}
+
+// set left and right channel volume to 'volume'
+// value is * -1/2dB level
+void setup_mp3player(uint8_t volume) {
   byte result = MP3player.begin();
-  MP3player.setVolume(leftvol, rightvol);
+  MP3player.setVolume(volume);
 
   if (result != 0) {
     Serial.print("Error starting mp3 player, code: ");
     Serial.println(result);
   }
 }
-  
+
+// the main attraction
 
 void loop() {
-  readTouchInputs();
-}
-
-
-void readTouchInputs() {
   if (MPR121.touchStatusChanged()) {
 
     MPR121.updateTouchData();
 
     // only make an action if we have one or fewer pins touched
-    // ignore multiple touches
+    // XXX 
+    //   suspect this will need a change; may well have multiples
+    //   in which case, we should figure out what's going on 
+    // XXX
 
     if (MPR121.getNumTouches() <= 1) {
 
