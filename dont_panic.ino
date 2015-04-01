@@ -2,10 +2,16 @@
 /*******************************************************************************
 
 Glorified calibration test of bare conductive book project.
-  sensitivity range via 
-     MPR121.setTouchThreshold() / MPR121.setReleaseThreshold();
-in setup()
+  sensitivity range in setup() via 
+     MPR121.setTouchThreshold(val) / MPR121.setReleaseThreshold(val);
+
 mpr121 docs : https://github.com/BareConductive/mpr121
+
+XXX possibly useful from skimming 
+     https://github.com/BareConductive/mpr121/blob/public/MPR121/MPR121.h
+
+   setTouchThreshold(pin,val) / setReleaseThreshold(pin,val) // per-pin thresholds
+   getFilteredData(pin) / getBaselineData(pin) // raw data
 
 *******************************************************************************/
 
@@ -26,7 +32,7 @@ mpr121 docs : https://github.com/BareConductive/mpr121
 
 // mp3 variables
 SFEMP3Shield MP3player;
-byte result;
+
 int lastPlayed = 0; // track which track we last played
 
 // touch behaviour definitions
@@ -64,15 +70,20 @@ void setup() {
   // default value is 20 for touch
   MPR121.setReleaseThreshold(7);
 
-  result = MP3player.begin();
-  MP3player.setVolume(10, 10);
+  setup_mp3player(10,10);
+
+}
+
+void setup_mp3player(int leftvol, int rightvol) {
+  byte result = MP3player.begin();
+  MP3player.setVolume(leftvol, rightvol);
 
   if (result != 0) {
     Serial.print("Error starting mp3 player, code: ");
     Serial.println(result);
   }
-
 }
+  
 
 void loop() {
   readTouchInputs();
