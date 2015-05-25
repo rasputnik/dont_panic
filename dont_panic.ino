@@ -45,6 +45,9 @@ int lastPlayed = 0; // track which track we last played
 #define LED_BUILTIN 13
 #endif
 
+// tweakables
+uint8_t volume = 0; // 0-255 : 10 is audible, higher numbers are quieter??
+
 void setup() {
   Serial.begin(57600);
 
@@ -54,7 +57,7 @@ void setup() {
   
   setup_sdcard();
   setup_touchpad(20,7); // args = touch, release thresholds
-  setup_mp3player(10); // arg = volume
+  setup_mp3player(volume); // arg = volume
 
 }
 
