@@ -101,11 +101,6 @@ void loop() {
     MPR121.updateTouchData();
 
     // only make an action if we have one or fewer pins touched
-    // XXX 
-    //   suspect this will need a change; may well have multiples
-    //   in which case, we should figure out what's going on 
-    // XXX
-
     if (MPR121.getNumTouches() <= 1) {
 
       /////////////////////////////////////////////////
@@ -121,18 +116,18 @@ void loop() {
           Serial.print(" . ");
         }
       }
-      Serial.println("+++++ end debug +++++");
+      Serial.println("\n+++++ end debug +++++");
       /////////////////////////////////////////////////
 
+      // check for pin up on each pin
 
       for (int i = 0; i < 12; i++) { // Check which electrodes were pressed
-        if (MPR121.isNewTouch(i)) {
+        if (MPR121.isNewRelease(i)) {
 
-          //pin i was just touched
-          Serial.print("touch on pin ");
+          Serial.print("release on pin ");
           Serial.println(i);
 
-          digitalWrite(LED_BUILTIN, HIGH);
+          digitalWrite(LED_BUILTIN, LOW);
 
           if (i <= lastPin && i >= firstPin) {
             if (MP3player.isPlaying()) {
@@ -163,10 +158,10 @@ void loop() {
             }
           }
         } else {
-          if (MPR121.isNewRelease(i)) {
-            Serial.print("touch stopped on pin ");
+          if (MPR121.isNewTouch(i)) {
+            Serial.print("touch on pin ");
             Serial.println(i);
-            digitalWrite(LED_BUILTIN, LOW);
+            digitalWrite(LED_BUILTIN, HIGH);
           }
         }
       }
