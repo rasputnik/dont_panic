@@ -50,7 +50,6 @@ void setup() {
 
   pinMode(LED_BUILTIN, OUTPUT);
 
-  while (!Serial) ; {} //uncomment when using the serial monitor
   Serial.println("Bare Conductive Proximity MP3 player");
   
   setup_sdcard();
