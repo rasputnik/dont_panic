@@ -104,8 +104,8 @@ void loop() {
     if (MPR121.getNumTouches() <= 1) {
 
       /////////////////////////////////////////////////
-      // dicks debug; read all pins and output them
-      Serial.println("++++ dicks debug ++++");
+      // debug; output state of all traces
+      Serial.println("++++ debug ++++");
       Serial.println(" 0  1  2  3  4  5  6  7  8  9  a  b  ");
       for (int i = 0; i < 12; i++) {
         if (MPR121.isNewTouch(i)) {
