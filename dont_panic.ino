@@ -56,7 +56,7 @@ void setup() {
   Serial.println("Bare Conductive Proximity MP3 player");
   
   setup_sdcard();
-  setup_touchpad(40,20); // args = touch, release thresholds
+  setup_touchpad(60,20); // args = touch, release thresholds
   setup_mp3player(volume); // arg = volume
 
 }
