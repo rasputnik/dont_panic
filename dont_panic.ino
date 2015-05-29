@@ -46,7 +46,7 @@ int lastPlayed = 0; // track which track we last played
 #endif
 
 // tweakables
-uint8_t volume = 0; // 0-255 : 10 is audible, higher numbers are quieter??
+uint8_t volume = 45; // 0-255 : 10 is audible, higher numbers are quieter??
 
 void setup() {
   Serial.begin(57600);
@@ -98,10 +98,11 @@ void setup_mp3player(uint8_t volume) {
 void loop() {
   if (MPR121.touchStatusChanged()) {
 
-    MPR121.updateTouchData();
+    MPR121.updateTouchData(); // read in touch status from pins
 
     // only make an action if we have one or fewer pins touched
-    if (MPR121.getNumTouches() <= 1) {
+ //   if (MPR121.getNumTouches() <= 1) {
+   if (true) {
 
       /////////////////////////////////////////////////
       // debug; output state of all traces
